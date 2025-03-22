@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Search } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,16 +43,22 @@ const cities = [
 
 export default function CitySelectors() {
   const [open, setOpen] = useState(false);
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  console.log("🚀 ~ CitySelectors ~ selectedCities:", selectedCities);
+  const [selectedCities, setSelectedCities] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem("selectedCities") || "[]");
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("selectedCities", JSON.stringify(selectedCities));
+  }, [selectedCities]);
 
   const handleSelect = useCallback((value: string) => {
     setSelectedCities((current) => {
-      // If already selected, remove it
       if (current.includes(value)) {
         return current.filter((item) => item !== value);
       }
-      // Otherwise add it
       return [...current, value];
     });
   }, []);
