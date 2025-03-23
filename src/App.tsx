@@ -1,9 +1,11 @@
-import Header from "./components/sections/Header";
+import Header from "./components/sections/header";
+import WeatherDashboard from "./components/sections/weatherDashboard";
 
 function App() {
   return (
-    <div className="max-w-7xl mx-auto mt-4">
+    <div className="max-w-7xl w-full mx-auto p-4">
       <Header />
+      <WeatherDashboard />
     </div>
   );
 }

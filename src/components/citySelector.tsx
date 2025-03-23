@@ -1,8 +1,3 @@
-"use client";
-
-import { Check, Search } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -18,79 +13,37 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cities } from "@/lib/cities";
 import { cn } from "@/lib/utils";
+import { useCityStore } from "@/store/cityStore";
+import { Check, Search } from "lucide-react";
+import { useState } from "react";
 
-const cities = [
-  { value: "new-york", label: "New York" },
-  { value: "london", label: "London" },
-  { value: "tokyo", label: "Tokyo" },
-  { value: "paris", label: "Paris" },
-  { value: "singapore", label: "Singapore" },
-  { value: "sydney", label: "Sydney" },
-  { value: "dubai", label: "Dubai" },
-  { value: "berlin", label: "Berlin" },
-  { value: "rome", label: "Rome" },
-  { value: "barcelona", label: "Barcelona" },
-  { value: "amsterdam", label: "Amsterdam" },
-  { value: "hong-kong", label: "Hong Kong" },
-  { value: "istanbul", label: "Istanbul" },
-  { value: "seoul", label: "Seoul" },
-  { value: "mumbai", label: "Mumbai" },
-  { value: "rio-de-janeiro", label: "Rio de Janeiro" },
-  { value: "toronto", label: "Toronto" },
-  { value: "moscow", label: "Moscow" },
-];
-
-export default function CitySelectors() {
+function CitySelector() {
   const [open, setOpen] = useState(false);
-  const [selectedCities, setSelectedCities] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(localStorage.getItem("selectedCities") || "[]");
-    }
-    return [];
-  });
+  const { selectedCities, addCity, removeCity, clearCities } = useCityStore();
 
-  useEffect(() => {
-    localStorage.setItem("selectedCities", JSON.stringify(selectedCities));
-  }, [selectedCities]);
-
-  const handleSelect = useCallback((value: string) => {
-    setSelectedCities((current) => {
-      if (current.includes(value)) {
-        return current.filter((item) => item !== value);
-      }
-      return [...current, value];
-    });
-  }, []);
-
-  const clearAll = useCallback(() => {
-    setSelectedCities([]);
-  }, []);
+  const handleSelect = (value: string) => {
+    selectedCities.includes(value) ? removeCity(value) : addCity(value);
+    setOpen(false);
+  };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[300px] justify-between"
+            className="w-full sm:w-[300px] justify-between"
           >
-            {selectedCities.length > 0 ? (
-              <div className="flex items-center gap-1 overflow-hidden">
-                <span className="text-sm">
-                  {selectedCities.length}{" "}
-                  {selectedCities.length === 1 ? "city" : "cities"} selected
-                </span>
-              </div>
-            ) : (
-              "Select cities..."
-            )}
+            Select cities...{" "}
+            {selectedCities.length > 0 && `(${selectedCities.length} Selected)`}
             <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent className="w-full sm:w-[300px] p-0">
           <Command>
             <div className="flex items-center border-b px-3">
               <CommandInput
@@ -103,7 +56,8 @@ export default function CitySelectors() {
                   size="sm"
                   onClick={(e) => {
                     e.preventDefault();
-                    clearAll();
+                    clearCities();
+                    setOpen(false);
                   }}
                   className="h-8 px-2 text-xs"
                 >
@@ -119,7 +73,7 @@ export default function CitySelectors() {
                     <CommandItem
                       key={city.value}
                       value={city.value}
-                      onSelect={handleSelect}
+                      onSelect={() => handleSelect(city.value)}
                     >
                       <div className="flex items-center gap-2 w-full">
                         <Check
@@ -143,3 +97,5 @@ export default function CitySelectors() {
     </div>
   );
 }
+
+export { CitySelector as default };
